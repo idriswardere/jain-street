@@ -1,5 +1,6 @@
 import random
 from tqdm import tqdm
+import numpy as np
 
 class Game():
 
@@ -54,17 +55,37 @@ def simulate_games(N: int, num_games: int) -> list:
     
     return games
 
-def get_win_prob(N: int, num_games: int) -> None:
-    games = simulate_games(N=N, num_games=num_games)
+def get_win_prob(N: int, num_games: int, num_sims: int) -> None:
+    sim_estimates = []
+    for sim in range(num_sims):
+        games = simulate_games(N=N, num_games=num_games)
 
-    total_won = 0
-    for game in games:
-        if game.won:
-            total_won += 1
-    win_prob = total_won/len(games)
+        total_won = 0
+        for game in games:
+            if game.won:
+                total_won += 1
+        win_prob = total_won/len(games)
+        sim_estimates.append(win_prob)
 
-    print(f"N={N}, num_games={num_games}")    
-    print(f"Probability of winning: {win_prob}\n")
+    print(f"N={N}, num_games={num_games}, num_sims={num_sims}")    
+    print(f"Probability of winning: {np.mean(sim_estimates)} (SD={np.std(sim_estimates)})\n")
+
+
+def get_expected_payout(N: int, num_games: int, num_sims: int) -> None:
+    sim_estimates = []
+    for sim in range(num_sims):
+        games = simulate_games(N=N, num_games=num_games)
+        total_payout = 0
+        # payouts = []
+        for game in games:
+            total_payout += game.payout
+            # payouts.append(game.payout)
+        expected_payout = total_payout/len(games)
+        sim_estimates.append(expected_payout)
+
+    print(f"N={N}, num_games={num_games}, num_sims={num_sims}")
+    print(f"Expected payout: {np.mean(sim_estimates)} (SD={np.std(sim_estimates)})\n")
+    # print(f"Payouts:  {payouts}\n")
 
 
 def get_unique_wins(N: int, num_games: int):
@@ -89,20 +110,6 @@ def get_unique_wins(N: int, num_games: int):
     for game_str in sorted(game_strs):
         print(game_str)
 
-def get_expected_payout(N: int, num_games: int) -> None:
-    games = simulate_games(N=N, num_games=num_games)
-    total_payout = 0
-    # payouts = []
-    for game in games:
-        total_payout += game.payout
-        # payouts.append(game.payout)
-    expected_payout = total_payout/len(games)
-    
-
-    print(f"N={N}, num_games={num_games}")
-    print(f"Expected payout: {expected_payout}\n")
-    # print(f"Payouts:  {payouts}\n")
-
 
 def main():
     # game = Game(N=6)
@@ -110,16 +117,16 @@ def main():
     # print("gg")
 
     # Problem a
-    # get_win_prob(6, 10000000)
+    get_win_prob(N=6, num_games=100000, num_sims=10)
 
     # Problem b
-    # get_expected_payout(N=6, num_games=10000000)
+    get_expected_payout(N=6, num_games=100000, num_sims=10)
 
     # Problem c
-    get_win_prob(1000, 1000000)
+    get_win_prob(N=1000, num_games=1000000, num_sims=10)
 
     # Problem d
-    # get_expected_payout(N=1000, num_games=10000000)
+    get_expected_payout(N=1000, num_games=100000, num_sims=10)
 
 
     # get_win_prob(N=8, num_games=1000000)
@@ -127,7 +134,7 @@ def main():
     # get_win_prob(N=1000, num_games=10000000)
     # get_expected_payout(N=1000, num_games=1000000)
 
-    # get_unique_wins(N=10, num_games=1000000)
+    # get_unique_wins(N=12, num_games=1000000)
 
 
 if __name__ == "__main__":
